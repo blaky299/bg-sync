@@ -1,0 +1,7 @@
+{
+  "name": "bg-sync",
+  "version": "0.0.1",
+  "description": "A cli command to sync bgeneral account statement with different providers",
+  "main": "index.js",
+  "license": "MIT"
+}
