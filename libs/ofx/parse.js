@@ -59,6 +59,4 @@ const parse = (ofxData) => ({
 
 module.exports.getHeader = getHeader;
 module.exports.getData = getData;
-module.exports = {
-	parse
-};
+module.exports.parse = parse;
