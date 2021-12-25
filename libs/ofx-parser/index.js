@@ -1,14 +1,20 @@
 const { XMLParser } = require('fast-xml-parser');
 
-const HEADER_END_REGEX = /\r\n\r\n/gm;
+const HEADER_END_REGEX = /\n\n/gm;
 const NODE_REGEX = /<([\w]+)>/gm;
 const ATTRIBUTE_REGEX = /<([\w]+)>(.+)/;
 
 const parser = new XMLParser();
 
+const sanitizeOFX = (ofxData) => {
+	const sanitizedOFXData = ofxData.replace(/\r/gm, '');
+	return sanitizedOFXData;
+}
+
 const getHeader = (ofxData) => {
-	const headerString = ofxData.split(HEADER_END_REGEX)[0];
-	const pairs = headerString.split(/\r\n/);
+	const sanitizedOFX = sanitizeOFX(ofxData);
+	const headerString = sanitizedOFX.split(HEADER_END_REGEX)[0];
+	const pairs = headerString.split(/\n/);
 	
 	return pairs.reduce((acc, pair) => {
 		const splittedPair = pair.split(':');
@@ -20,10 +26,8 @@ const getHeader = (ofxData) => {
 	}, {});
 }
 
-
-const sanitizeOFX = (ofxData) => {
-	const messageString = ofxData.split(HEADER_END_REGEX)[1];
-	const lines = messageString.split(/\r\n/);
+const sanitizeData = (ofxData) => {
+	const lines = ofxData.split(/\n/);
 	
 	const newLines = lines.map((line) => {
 		if (ATTRIBUTE_REGEX.test(line)) {
@@ -35,11 +39,13 @@ const sanitizeOFX = (ofxData) => {
 		return line;
 	});
 
-	return newLines.join('\r\n');
+	return newLines.join('\n');
 }
 
 const getData = (ofxData) => {
-	const xml = sanitizeOFX(ofxData);
+	const data = sanitizeOFX(ofxData);
+	const messageString = data.split(HEADER_END_REGEX)[1];
+	const xml = sanitizeData(ofxData);
 	const json = parser.parse(xml);
 
 	return json;
